@@ -12,6 +12,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,6 +52,11 @@ public class AdapterSpis extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Person res = res1.get(position);
         ((MyViewHolder) holder).textView.setText(res.username);
+    }
+    public void updateData(List<Person> viewModels) {
+        res1.clear();
+        res1.addAll(viewModels);
+        notifyDataSetChanged();
     }
 
     @Override

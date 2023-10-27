@@ -54,52 +54,46 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        btnFetch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //contentView.setText("Загрузка...");
-                new Thread(new Runnable() {
-                    public void run() {
-                        try{
-                            Gson g = new Gson();
-                           for (int i = 0; i < 10; i++){
+        btnFetch.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), "Загрузка....", Toast.LENGTH_SHORT).show();
+            //contentView.setText("Загрузка...");
+            new Thread(new Runnable() {
+                public void run() {
+                    try{
+                        Gson g = new Gson();
+                       //for (int i = 0; i < 10; i++){
 
-                                content = getContent("https://fakestoreapi.com/users/" + sch);
-                                //content = getContent("https://fakestoreapi.com/users/11");
+                            content = getContent("https://fakestoreapi.com/users");
 
 
-                                if(!content.trim().substring(1,4).equals("null")) {
-                                    Person person = g.fromJson(content, Person.class);
-                                    people.add(person);
-                                    recyclerView.post(new Runnable() {
-                                        public void run() {
-                                            adapterSpis.notifyDataSetChanged();
-                                            Toast.makeText(getApplicationContext(), content, Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                    sch++;
-                                }else {
-                                    break;
-                                }
-                           }
+                            //if(!content.trim().substring(1,4).equals("null")) {
+                                Type listType = new TypeToken<List<Person>>(){}.getType();
+                                people = g.fromJson(content, listType);
+                                recyclerView.post(() -> {
+                                    adapterSpis.updateData(people);
+                                    Log.d("e", people.get(0).username);
+                                    Toast.makeText(getApplicationContext(), content, Toast.LENGTH_SHORT).show();
+                                });
+                            /*}else {
+                                break;
+                            }*/
+                       //}
 
 
-                        }
-                        catch (IOException ex){
-                            /*contentView.post(new Runnable() {
-                                public void run() {
-                                    contentView.setText("Ошибка: " + ex.getMessage());
-                                    Toast.makeText(getApplicationContext(), "Ошибка", Toast.LENGTH_SHORT).show();
-                                }
-                            });*/
-                        }
                     }
-                }).start();
+                    catch (IOException ex){
+                        recyclerView.post(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Ошибка", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            }).start();
 
 
 
 
-            }
         });
     }
     private String getContent(String path) throws IOException {
