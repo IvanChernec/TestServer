@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:orientation="horizontal"
+    android:layout_margin="6dp"
+    android:background="@drawable/ic_normal_back"
+    android:id="@+id/ll_item_cat">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_spis"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="5sp"
+        android:textColor="@color/white"
+        android:layout_gravity="top"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+
+</LinearLayout>
