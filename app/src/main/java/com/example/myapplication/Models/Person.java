@@ -1,10 +1,13 @@
-package com.example.myapplication;
+package com.example.myapplication.Models;
 
-import java.util.List;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-class Person {
+public class Person {
     public Address address;
-    public int id = 0;
+    @SerializedName("id")
+    @Expose
+    public int id;
     public String email;
     public String username;
     public String password;

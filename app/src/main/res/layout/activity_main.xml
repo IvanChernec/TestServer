@@ -7,14 +7,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <Button
-        android:id="@+id/downloadBtn"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:text="Загрузка"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="82dp"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/downloadBtn"
+            android:layout_width="203dp"
+            android:layout_height="70dp"
+            android:text="Загрузить \nПользователей"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/downloadBtnPr"
+            android:layout_width="203dp"
+            android:layout_height="70dp"
+            android:layout_gravity="left"
+            android:text="Загрузить \nПродукты"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_spis_tovar"

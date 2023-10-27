@@ -3,23 +3,20 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.webkit.WebView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.Models.Person;
+import com.example.myapplication.Models.Product;
+import com.example.myapplication.adapter.AdapterProduct;
+import com.example.myapplication.adapter.AdapterSpis;
+import com.example.myapplication.service.APIUtils;
+import com.example.myapplication.service.ProductService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,72 +25,88 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
     private String content;
-    private int sch = 1;
     private List<Person> people;
+    private List<Product> products;
     private AdapterSpis adapterSpis;
+    private AdapterProduct adapterProduct;
     private RecyclerView recyclerView;
+    ProductService productService;
 
     @Override
+    @SuppressLint("MissingInflatedId")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         recyclerView =findViewById(R.id.rv_spis_tovar);
         Button btnFetch = findViewById(R.id.downloadBtn);
+        Button btnProduct = findViewById(R.id.downloadBtnPr);
         people = new ArrayList<>();
+        products = new ArrayList<>();
+        adapterProduct = new AdapterProduct(getBaseContext(), products);
         adapterSpis = new AdapterSpis(getBaseContext(), people);
-        recyclerView.setAdapter(adapterSpis);
+        productService = APIUtils.getProductService();
 
 
 
+        btnProduct.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), "Загрузка....", Toast.LENGTH_SHORT).show();
+            getProductsList();
+
+        });
         btnFetch.setOnClickListener(v -> {
             Toast.makeText(getApplicationContext(), "Загрузка....", Toast.LENGTH_SHORT).show();
-            //contentView.setText("Загрузка...");
-            new Thread(new Runnable() {
-                public void run() {
-                    try{
-                        Gson g = new Gson();
-                       //for (int i = 0; i < 10; i++){
-
-                            content = getContent("https://fakestoreapi.com/users");
-
-
-                            //if(!content.trim().substring(1,4).equals("null")) {
-                                Type listType = new TypeToken<List<Person>>(){}.getType();
-                                people = g.fromJson(content, listType);
-                                recyclerView.post(() -> {
-                                    adapterSpis.updateData(people);
-                                    Log.d("e", people.get(0).username);
-                                    Toast.makeText(getApplicationContext(), content, Toast.LENGTH_SHORT).show();
-                                });
-                            /*}else {
-                                break;
-                            }*/
-                       //}
-
-
-                    }
-                    catch (IOException ex){
-                        recyclerView.post(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Ошибка", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+            getUsersList();
+        });
+    }
+    public void getProductsList(){
+        Call<List<Product>> call = productService.getUsers();
+        call.enqueue(new Callback<List<Product>>() {
+            @Override
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                if(response.isSuccessful()){
+                    products = response.body();
+                    recyclerView.setAdapter(adapterProduct);
+                    adapterProduct.updateData(products);
+                    Toast.makeText(getApplicationContext(), "Успешно", Toast.LENGTH_SHORT).show();
                 }
-            }).start();
+            }
 
+            @Override
+            public void onFailure(Call<List<Product>> call, Throwable t) {
+                Log.e("ERROR: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), "Ошибка", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public void getUsersList(){
+        Call<List<Person>> call = productService.getPerson();
+        call.enqueue(new Callback<List<Person>>() {
+            @Override
+            public void onResponse(Call<List<Person>> call, Response<List<Person>> response) {
+                if(response.isSuccessful()){
+                    people = response.body();
+                    recyclerView.setAdapter(adapterSpis);
+                    adapterSpis.updateData(people);
+                    Toast.makeText(getApplicationContext(), "Успешно", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-
-
+            @Override
+            public void onFailure(Call<List<Person>> call, Throwable t) {
+                Log.e("ERROR: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), "Ошибка", Toast.LENGTH_SHORT).show();
+            }
         });
     }
     private String getContent(String path) throws IOException {
