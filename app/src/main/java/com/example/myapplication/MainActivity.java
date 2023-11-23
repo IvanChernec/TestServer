@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private AdapterProduct adapterProduct;
     private RecyclerView recyclerView;
     ProductService productService;
+    private ItemTouchHelper.SimpleCallback callback;
+
 
     @Override
     @SuppressLint("MissingInflatedId")
@@ -51,11 +55,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView =findViewById(R.id.rv_spis_tovar);
         Button btnFetch = findViewById(R.id.downloadBtn);
         Button btnProduct = findViewById(R.id.downloadBtnPr);
+        Button btnAdd = findViewById(R.id.btn_add);
         people = new ArrayList<>();
         products = new ArrayList<>();
         adapterProduct = new AdapterProduct(getBaseContext(), products);
         adapterSpis = new AdapterSpis(getBaseContext(), people);
         productService = APIUtils.getProductService();
+
 
 
 
@@ -68,6 +74,31 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Загрузка....", Toast.LENGTH_SHORT).show();
             getUsersList();
         });
+
+        btnAdd.setOnClickListener(v->{
+            AddFragment addFragment = new AddFragment();
+            this.getSupportFragmentManager().beginTransaction().add(R.id.fl_main, addFragment).commit();
+        });
+
+        callback = new ItemTouchHelper.SimpleCallback(1, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position= viewHolder.getAdapterPosition();
+                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT){
+                    if (position >= 0) {
+                        addUser(new Person());
+                    }
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
     public void getProductsList(){
         Call<List<Product>> call = productService.getUsers();
@@ -109,35 +140,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private String getContent(String path) throws IOException {
-        BufferedReader reader=null;
-        InputStream stream = null;
-        HttpsURLConnection connection = null;
-        try {
-            URL url=new URL(path);
-            connection =(HttpsURLConnection)url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
-            connection.connect();
-            stream = connection.getInputStream();
-            reader= new BufferedReader(new InputStreamReader(stream));
-            StringBuilder buf=new StringBuilder();
-            String line;
-            while ((line=reader.readLine()) != null) {
-                buf.append(line).append("\n");
+
+    public void addUser(Person u){
+        Call<Person> call = productService.addPerson(u);
+        call.enqueue(new Callback<Person>() {
+            @Override
+            public void onResponse(Call<Person> call, Response<Person> response) {
+                if(response.isSuccessful()){
+                    Log.e("Successful: ", "Successful");
+                    Toast.makeText(getApplicationContext(), "Проверка успешна!", Toast.LENGTH_SHORT).show();
+                }
             }
-            return(buf.toString());
-        }
-        finally {
-            if (reader != null) {
-                reader.close();
+
+            @Override
+            public void onFailure(Call<Person> call, Throwable t) {
+                Log.e("ERROR: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
             }
-            if (stream != null) {
-                stream.close();
-            }
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
+        });
     }
+
+    public void deleteUser(int id){
+        Call<Person> call = productService.deletePerson(id);
+        call.enqueue(new Callback<Person>() {
+            @Override
+            public void onResponse(Call<Person> call, Response<Person> response) {
+                if(response.isSuccessful()){
+                    Log.e("Successful: ", "Successful");
+                    Toast.makeText(getApplicationContext(), "Проверка успешна", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Person> call, Throwable t) {
+                Log.e("ERROR: ", t.getMessage());
+                Toast.makeText(getApplicationContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
