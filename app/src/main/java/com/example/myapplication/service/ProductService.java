@@ -21,12 +21,20 @@ public interface ProductService {
     @GET("users/")
     Call<List<Person>> getPerson();
 
-    @POST("add/")
-    Call<Product> addUser(@Body Product user);
+    @POST("products/")
+    Call<Product> addProduct(@Body Product product);
+    @POST("users/")
+    Call<Person> addPerson(@Body Person user);
 
-    @PUT("update/{id}")
-    Call<Product> updateUser(@Path("id") int id, @Body Product user);
+    @PUT("products/{id}")
+    Call<Product> updateProduct(@Path("id") int id, @Body Product product);
 
-    @DELETE("delete/{id}")
-    Call<Product> deleteUser(@Path("id") int id);
+    @PUT("users/{id}")
+    Call<Person> updatePerson(@Path("id") int id, @Body Person user);
+
+    @DELETE("products/{id}")
+    Call<Product> deleteProduct(@Path("id") int id);
+
+    @DELETE("users/{id}")
+    Call<Person> deletePerson(@Path("id") int id);
 }

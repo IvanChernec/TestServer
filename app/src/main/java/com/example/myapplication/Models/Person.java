@@ -19,7 +19,6 @@ public class Person {
 class Name{
     public String firstname;
     public String lastname;
-
 }
 
 class Address {
@@ -34,4 +33,6 @@ class Geolocation{
     public double long1;
 
 }
+
+
 
